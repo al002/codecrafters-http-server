@@ -13,12 +13,19 @@ fn handle_connection(mut stream: TcpStream) {
     let first_parts: Vec<&str> = first.split_whitespace().collect();
     let path = first_parts[1];
 
-    if path == "/" { 
+    if path == "/" {
         stream.write_all(b"HTTP/1.1 200 OK\r\n\r\n");
+    } else if path.contains("/echo") {
+        let s = &path[6..];
+        let len = s.len();
+        let res = format!(
+            "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\n\r\n{}\r\n\r\n",
+            len, s
+        );
+        stream.write_all(res.as_bytes());
     } else {
         stream.write_all(b"HTTP/1.1 404 NOT FOUND\r\n\r\n");
     }
-
 }
 
 fn main() {
